@@ -2,9 +2,9 @@
 Here we have integrated openAI's GPT into frontend 
 using streamlit.
 """
-from common_functions import generate_response
+from common_functions import generate_response,num_tokens_from_messages
 
-from config import  SYSTEM_TEMPLATE
+from config import  SYSTEM_TEMPLATE,MODEL_NAME,MAX_TOKEN,TOKEN_THRESHOLD
 
 
 # setting up a list to keep stack of user-input and GPT's output
@@ -21,6 +21,14 @@ while True:
     prompt = input("Enter prompt:- ")
     messages.append({"role": "user", "content": prompt})
     print("You:- ",prompt)
+    while True:
+        tokens_used = num_tokens_from_messages(messages, MODEL_NAME)
+        available_tokens = MAX_TOKEN - tokens_used
+        if available_tokens < TOKEN_THRESHOLD:
+            messages.pop(1)
+            print(MAX_TOKEN,"-> ",TOKEN_THRESHOLD)
+        else:
+            break
     response = generate_response(messages)
     msg = response
     messages.append({"role": "assistant", "content": msg})
